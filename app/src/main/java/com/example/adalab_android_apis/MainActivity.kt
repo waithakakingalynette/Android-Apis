@@ -9,45 +9,54 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
     override fun onResume() {
         super.onResume()
-        getProduct()
+        getProducts()
     }
 
-   private fun getProduct(){
-        val apiClient=ApiClients.buildApiClient(ApiInterface::class.java)
-        val request=apiClient.getProduct()
-        request.enqueue(object : Callback<ProductResponse>{
+    fun getProducts() {
+        val retrofit = ApiClient.buildApiClient(ApiInterface::class.java)
+        val request = retrofit.getProducts()
+        request.enqueue(object : Callback<ProductsResponse> {
             override fun onResponse(
-                call: Call<ProductResponse>,
-                response: Response<ProductResponse>
+                call: Call<ProductsResponse>,
+                response: Response<ProductsResponse>
             ) {
-                if (response.isSuccessful){
-                    val products=response.body()?.products
-                    var productadapter=ProductRvAdapter(products?: emptyList())
-                    binding.rvadapter.layoutManager=LinearLayoutManager(this@MainActivity)
-                    binding.rvadapter.adapter=productadapter
-                    Toast.makeText(baseContext,"Fetched ${products?.size} products",Toast.LENGTH_LONG)
+                if (response.isSuccessful) {
+
+                    var products = response.body()?.products
+
+                    var productAdapter=ProductsAdapter(products?: emptyList())
+                    binding.rvadapter.layoutManager= LinearLayoutManager(this@MainActivity)
+                    binding.rvadapter.adapter = productAdapter
+
+                    Toast.makeText(
+                        baseContext,
+                        "fetched ${products?.size}products",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Toast.makeText(baseContext, response.errorBody()?.string(), Toast.LENGTH_LONG)
                         .show()
                 }
-                else{
-                    Toast.makeText(baseContext,response.errorBody()?.string(),Toast.LENGTH_LONG)
-                        .show()
-                }
+
             }
 
-            override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
-                Toast.makeText(baseContext,t.message,Toast.LENGTH_LONG)
-                    .show()
+            override fun onFailure(call: Call<ProductsResponse>, t: Throwable) {
+                Toast.makeText(baseContext, t.message, Toast.LENGTH_LONG).show()
             }
         })
+
+
     }
 }

@@ -6,8 +6,8 @@ import retrofit2.http.Path
 
 interface ApiInterface {
     @GET("/product")
-    fun getProduct():Call<ProductResponse>
+    fun getProducts(): Call<ProductsResponse>
 
     @GET("/product/{id}")
-    fun getProductById(@Path("id")productId:Int):Call<Products>
+    fun getProductsbyId(@Path("id") productId: Int): Call<Products>
 }
